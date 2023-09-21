@@ -33,9 +33,6 @@ int main(int argc, char **argv) {
     // limit was not violated while making prediction and recording the actual
     // outcome
     enableDynamicInstructionCounting();
-    // ask spaceship computer for help
-    bool spaceshipComputerPrediction = spaceshipComputer.predict(nextPlanet.planetID);  
-
 
     //---------The functions called below are to be implemented by contestants-----
     // make a prediction of time-of-day on the next planet
