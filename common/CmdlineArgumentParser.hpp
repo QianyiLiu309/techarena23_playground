@@ -16,11 +16,12 @@ namespace po_style = boost::program_options::command_line_style;
 // Prepare variables for command-line arguments
 struct CmdlineOptions {
   bool isVerboseOutputEnabled;
+  bool isWithoutProgressBar;
   std::string inFile;
 };
 
-/* Parse the comand-line options and place them to cmdlineOptions
- * Returns true if parsing is successfull and false otherwise
+/* Parse the command-line options and place them to cmdlineOptions
+ * Returns true if parsing is successful and false otherwise
  */
 
 bool parseComdlineOptions(int argc, char **argv, CmdlineOptions &cmdline_opts) {
@@ -34,9 +35,13 @@ bool parseComdlineOptions(int argc, char **argv, CmdlineOptions &cmdline_opts) {
                       "path to the input file with route, required");
   po::options_description parameters("Parameters");
   parameters.add_options()("verbose,v",
-                           po::value<bool>(&cmdline_opts.isVerboseOutputEnabled)
+                           po::bool_switch(&cmdline_opts.isVerboseOutputEnabled)
                                ->default_value(false),
-                           "enable verbose output");
+                           "enable verbose output during evaluation");
+  parameters.add_options()(
+      "without-progress-bar,p",
+      po::bool_switch(&cmdline_opts.isWithoutProgressBar)->default_value(false),
+      "disable evaluation progress bar");
   option_desc.add(generic).add(input).add(parameters);
 
   // Read the command-line options

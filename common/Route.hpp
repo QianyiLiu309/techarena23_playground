@@ -44,7 +44,7 @@ struct Route {
     numberOfVisitedPlanets = 0;
     numberOfCorrectPredictions = 0;
 
-    // count number of lines in the input
+    // Count number of lines in the input
     std::string curLine;
     int lineCount = 0;
     std::ifstream file(filename);
@@ -53,7 +53,7 @@ struct Route {
 
     route_filename = filename;
     route_file.open(filename, std::ifstream::in);
-    // ignore the header line
+    // Ignore the header line
     std::getline(route_file, curLine);
   }
 
@@ -62,7 +62,7 @@ struct Route {
   bool readLineFromFile(PlanetInfo& planet) {
     if (!route_file.is_open()) {
       std::cerr << "Error: Could not open route file " << route_filename
-                << std::endl;
+                << std::endl << std::endl;
       return false;
     }
 

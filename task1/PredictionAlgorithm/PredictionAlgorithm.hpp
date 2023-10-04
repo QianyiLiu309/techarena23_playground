@@ -1,9 +1,17 @@
-#include <cstdint>
-
 /*
- * This file must declare the following functions:
+ * This file must declare the following structures and methods.
+ * Please don't modify this file.
  */
 
-bool predictTimeOfDayOnNextPlanet(std::uint64_t nextPlanetID, bool spaceshipComuterPrediction);
+#include <cstdint>
 
-void observeAndRecordTimeofdayOnNextPlanet(std::uint64_t nextPlanetID, bool timeOfDayOnNextPlanet);
+struct RoboPredictor {
+  struct RoboMemory;
+  RoboMemory* roboMemory_ptr;
+
+  bool predictTimeOfDayOnNextPlanet(std::uint64_t nextPlanetID,
+                                    bool spaceshipComuterPrediction);
+
+  void observeAndRecordTimeofdayOnNextPlanet(std::uint64_t nextPlanetID,
+                                             bool timeOfDayOnNextPlanet);
+};
