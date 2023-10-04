@@ -22,6 +22,7 @@ fi
 
 # uncompress the routes for task1 input
 pushd $TECHARENA23_TASK1_DIR/task1/routes
+echo "Unzipping testing and evaluation routes."
 if [[ ! -z "$(ls -1 *.gz 2> /dev/null)" ]]; then
     for i in $(ls *.gz); do gzip -d $i; done 
 fi
@@ -29,5 +30,6 @@ popd
 
 # uncompress and load a docker image with the toolchain
 pushd $TECHARENA23_TASK1_DIR/toolchain/docker
+echo "Unpacking and installing a docker container with toolchain."
 cat techarena23_toolchain_docker.tar_gz_* | gzip -d --to-stdout  | docker load
 popd

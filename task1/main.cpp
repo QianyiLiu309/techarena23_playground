@@ -20,10 +20,12 @@ int main(int argc, char **argv) {
     return 1;
   }
   // open a file with a route and initialize the route structure
+  std::cout << "Loading Robo's route for evaluation from " << cmdline_opts.inFile <<" file..." << std::endl;
   Route route(cmdline_opts.inFile);
   // create and initialize spaceshipComputer object 
   SpaceshipComputer spaceshipComputer;
 
+  std::cout << "Starting evaluation of Robo's prediction algorithm... " << std::endl;
   PlanetInfo nextPlanet;
   while (route.readLineFromFile(nextPlanet)) {
     // ask spaceship computer for help

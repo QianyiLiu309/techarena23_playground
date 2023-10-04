@@ -33,4 +33,4 @@ docker \
     -v $TECHARENA23_TASK1_DIR:/project \
     -w /project \
     techarena23_toolchain \
-    /bin/bash -c 'cd /project/task1; make clean; make'
+    /bin/bash -c 'export TECHARENA23_TASK1_DIR=/project; cd /project/task1; make clean; make'

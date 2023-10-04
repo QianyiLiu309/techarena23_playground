@@ -8,7 +8,6 @@
 
 //Sample implementation
 
-#include <unistd.h>
 #include "PredictionAlgorithm.hpp"
 
 bool predictTimeOfDayOnNextPlanet(std::uint64_t nextPlanetID, bool spaceshipComputerPrediction) {

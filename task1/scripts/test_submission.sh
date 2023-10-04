@@ -11,4 +11,4 @@ fi
 mkdir -p $TECHARENA23_TASK1_DIR/task1/PredictionAlgorithm && tar --strip-components 1 -xvf $INPUT_TAR -C $TECHARENA23_TASK1_DIR/task1/PredictionAlgorithm
 
 $TECHARENA23_TASK1_DIR/task1/scripts/build.sh >> build.log
-$TECHARENA23_TASK1_DIR/task1/scripts/evaluate.sh -r routes/route.txt  >> result.log 
+$TECHARENA23_TASK1_DIR/task1/scripts/evaluate.sh -r routes/route.txt >> result.log 
