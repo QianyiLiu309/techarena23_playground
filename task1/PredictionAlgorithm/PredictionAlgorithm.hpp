@@ -14,4 +14,11 @@ struct RoboPredictor {
 
   void observeAndRecordTimeofdayOnNextPlanet(std::uint64_t nextPlanetID,
                                              bool timeOfDayOnNextPlanet);
+
+  //---------------------------------------------------------------------
+  // Since the struct RoboMemory is implicitly defined in .cpp
+  // we need to move the declarations of constructor/destructor 
+  // to .cpp too
+  RoboPredictor();
+  ~RoboPredictor();
 };

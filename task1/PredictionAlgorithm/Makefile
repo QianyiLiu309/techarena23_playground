@@ -15,15 +15,15 @@ DYN_INSTR_COUNT_DIR=$(TECHARENA23_TASK1_DIR)/common/DynamicInstructionCounting
 CXXFLAGS=--sysroot $(SYSROOT) -nostdlib -nostdinc++ -nostdlib++ \
 	 -isystem $(INCLUDES)/c++/v1/ -isystem $(INCLUDES)/x86_64-pc-linux-musl/c++/v1 -isystem $(COMMON_INCLUDES) \
 	 -fPIC \
-	 -fuse-ld=$(LD) \
-         -D _LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
+	 -fuse-ld=$(LD) -Wno-unused-command-line-argument
+	 
 
 LDFLAGS=--sysroot $(SYSROOT) -nostdlib -nostdinc++ -nostdlib++ \
         -L $(LIBS) -Wl,--rpath,$(LIBS) -L $(LIBS)/x86_64-pc-linux-musl -Wl,-rpath,$(LIBS)/x86_64-pc-linux-musl \
-	-L $(DYN_INSTR_COUNT_DIR) -Wl,--rpath,$(DYN_INSTR_COUNT_DIR) \
+		-L $(DYN_INSTR_COUNT_DIR) -Wl,--rpath,$(DYN_INSTR_COUNT_DIR) \
         -fPIC \
         -latomic -lc++ -lc -lc++abi -lunwind -lDynamicInstructionCounting_API \
-	-fuse-ld=$(LD) 
+		-fuse-ld=$(LD) -Wno-unused-command-line-argument
 
 # To enable support dynamic instruction counting,
 # the following Clang command-line options must be added.

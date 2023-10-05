@@ -7,12 +7,6 @@ struct RoboPredictor::RoboMemory {
   // Place your RoboMemory content here
   // Note that the size of this data structure can't exceed 64KiB!
 };
-// Check if RoboMemory does not exceed 64KiB
-static_assert(
-    sizeof(RoboPredictor::RoboMemory) <= 65536,
-    "Robo's memory exceeds 65536 bytes (64KiB) in your implementation. "
-    "Prediction algorithms using so much "
-    "memory are ineligible. Please reduce the size of your RoboMemory struct.");
 
 bool RoboPredictor::predictTimeOfDayOnNextPlanet(
     std::uint64_t nextPlanetID, bool spaceshipComputerPrediction) {
@@ -44,4 +38,23 @@ void RoboPredictor::observeAndRecordTimeofdayOnNextPlanet(
   // for more details).
 
   // Simple prediction policy: do nothing
+}
+
+
+//------------------------------------------------------------------------------
+// Please don't modify this file below
+//
+// Check if RoboMemory does not exceed 64KiB
+static_assert(
+    sizeof(RoboPredictor::RoboMemory) <= 65536,
+    "Robo's memory exceeds 65536 bytes (64KiB) in your implementation. "
+    "Prediction algorithms using so much "
+    "memory are ineligible. Please reduce the size of your RoboMemory struct.");
+
+// Declare constructor/destructor for RoboPredictor
+RoboPredictor::RoboPredictor() {
+  roboMemory_ptr = new RoboMemory;
+}
+RoboPredictor::~RoboPredictor() {
+  delete roboMemory_ptr;
 }
