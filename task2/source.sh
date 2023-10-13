@@ -1,0 +1,2 @@
+export TECHARENA23_TASK2_DIR=$(pwd)/../
+echo "TECHARENA23_TASK2_DIR has been set to $TECHARENA23_TASK2_DIR"
