@@ -116,45 +116,49 @@ struct Route {
       return false;
     }
     std::string line;
-    std::istringstream iss(line);
-    std::string element1, element2, element3;
+    if (std::getline(route_file, line)) {
+        std::istringstream iss(line);
+        std::string element1, element2, element3;
 
-    if (std::getline(iss, element1, '\t') &&
-        std::getline(iss, element2, '\t') && std::getline(iss, element3)) {
-      // Extract the planet ID from the beginning of the line
-      planet.planetID = std::stoul(element1);
+        if (std::getline(iss, element1, '\t') &&
+            std::getline(iss, element2, '\t') && std::getline(iss, element3)) {
+          // Extract the planet ID from the beginning of the line
+          planet.planetID = std::stoul(element1);
 
-      // Extract time-of-day
-      if ((element2 != "DAY") && (element2 != "NIGHT")) {
-        std::cerr << "Error: Could not parse time-of-day for planet "
-                  << planet.planetID << ". Received time-of-day " << element2
-                  << std::endl;
-        return false;  // incorrect format
-      }
-      planet.timeOfDay = convertTimeOfDayToBool(element2);
+          // Extract time-of-day
+          if ((element2 != "DAY") && (element2 != "NIGHT")) {
+            std::cerr << "Error: Could not parse time-of-day for planet "
+                      << planet.planetID << ". Received time-of-day " << element2
+                      << std::endl;
+            return false;  // incorrect format
+          }
+          planet.timeOfDay = convertTimeOfDayToBool(element2);
 
-      // Extract the group tag from the string value after the tab character
-      planet.planetGroupTag = std::stoul(element3);
-      if ((planet.planetGroupTag < 0) ||
-          (planet.planetGroupTag > GROUP_TAG_MAX)) {
-        std::cerr
-            << "Group tag is outside of the allowed range while processing "
-               "planet number "
-            << (numberOfVisitedPlanets + 1)
-            << " in the input atlas route. Please check the input file format."
-            << std::endl;
-        return false;
-      }
-    } else {
-      // Failed to parse all three elements
-      std::cerr << "Can't parse the input atlas route file: format is wrong "
-                   "while processing planet number "
+          // Extract the group tag from the string value after the tab character
+          planet.planetGroupTag = std::stoul(element3);
+          if ((planet.planetGroupTag < 0) ||
+              (planet.planetGroupTag > GROUP_TAG_MAX)) {
+            std::cerr
+                << "Group tag is outside of the allowed range while processing "
+                   "planet number "
                 << (numberOfVisitedPlanets + 1)
-                << ". Please check the input file format." << std::endl;
-      return false;
+                << " in the input atlas route. Please check the input file format."
+                << std::endl;
+            return false;
+          }
+        } else {
+          // Failed to parse all three elements
+          std::cerr << "Can't parse the input atlas route file: format is wrong "
+                       "while processing planet number "
+                    << (numberOfVisitedPlanets + 1)
+                    << ". Please check the input file format." << std::endl;
+          return false;
+        }
+        numberOfVisitedPlanets++;
+        return true;
+    } else {
+        return false; //file end
     }
-    numberOfVisitedPlanets++;
-    return true;
   }
 
   void displayProgressBar() {
