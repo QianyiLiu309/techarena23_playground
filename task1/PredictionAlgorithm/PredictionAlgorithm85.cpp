@@ -6,7 +6,7 @@
 #include <set>
 #include <queue>
 
-struct RoboPredictor::RoboMemory {
+struct Robert::RoboMemory {
 
   std::uint64_t currentPlanetID = 0;
   bool currentPlanetTime = false;
