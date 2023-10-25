@@ -3,96 +3,152 @@
 
 #include "PredictionAlgorithm.hpp"
 #include <map>
-#include <set>
-#include <queue>
+#include <bitset>
+
+#define HISTORY_LENGTH 4
+#define COUNTER_LENGTH 2
+
+typedef std::pair<std::uint64_t, std::uint64_t> Branch;
+// typedef std::pair<Branch, std::bitset<HISTORY_LENGTH>> KeyToPHT;
+
+struct HistoryPatternComparator {
+    bool operator() (
+        const std::pair<Branch, std::bitset<HISTORY_LENGTH>> &b1, 
+        const std::pair<Branch, std::bitset<HISTORY_LENGTH>> &b2
+    ) const {
+        if (b1.first == b2.first){
+            return b1.second.to_ulong() < b2.second.to_ulong();
+        }
+        return b1.first < b2.first;
+    }
+};
+
+// void incrementCounter(std::bitset<COUNTER_LENGTH> &counter){
+//     bool carry = true; // add 1
+//     for (int i = 0; i < counter.size(); i ++){
+//         bool currentBit = counter[i];
+//         counter[i] = currentBit ^ carry;
+//         carry = carry && currentBit;
+//     }
+// }
+
+// void decrementCounter(std::bitset<COUNTER_LENGTH> &counter){
+//     bool borrow = true;
+//     for (int i = 0; i < counter.size(); i ++){
+//         bool currentBit = counter[i];
+//         counter[i] = currentBit ^ borrow;
+//         borrow = borrow && !currentBit;
+//     }
+// }
+
+typedef std::map<Branch, std::bitset<HISTORY_LENGTH>> BranchHistoryTable;
+typedef std::map<std::pair<Branch, std::bitset<HISTORY_LENGTH>>, std::bitset<COUNTER_LENGTH>, HistoryPatternComparator> PatternHistoryTable;
 
 struct RoboPredictor::RoboMemory {
-  // Place your RoboMemory content here
-  // Note that the size of this data structure can't exceed 64KiB!
+    // Place your RoboMemory content here
+    // Note that the size of this data structure can't exceed 64KiB!
 
-  // bool lastPlannetIsDayTime = true;
-  // std::map<std::uint64_t, bool> planetTimeOfDay;
+    // store 4 bits of address 
+    BranchHistoryTable branchHistoryTable; 
+    // std::map<Branch, std::uint64_t> branchOccurrenceCounter;
 
-  std::uint64_t currentPlanetID = 0;
-  bool currentPlanetTime = false;
-  std::uint64_t lastPlanetID = 0;
-  bool lastPlanetTime = false;
-
-  // std::map<std::uint64_t, std::set<std::uint64_t>> correlatedPlanets;
-
-  std::map<std::pair<std::uint64_t, std::uint64_t>, std::deque<bool>> records;
+    // use a 2-bit saturating counter 
+    PatternHistoryTable patternHistoryTable;
+    std::uint64_t previousPlanetId = 0; 
 };
 
 bool RoboPredictor::predictTimeOfDayOnNextPlanet(
     std::uint64_t nextPlanetID, bool spaceshipComputerPrediction) {
-  // Robo can consult data structures in its memory while predicting.
-  // Example: access Robo's memory with roboMemory_ptr-><your RoboMemory
-  // content>
+    // Robo can consult data structures in its memory while predicting.
+    // Example: access Robo's memory with roboMemory_ptr-><your RoboMemory
+    // content>
 
-  // Robo can perform computations using any data in its memory during
-  // prediction. It is important not to exceed the computation cost threshold
-  // while making predictions and updating RoboMemory. The computation cost of
-  // prediction and updating RoboMemory is calculated by the playground
-  // automatically and printed together with accuracy at the end of the
-  // evaluation (see main.cpp for more details).
+    // Robo can perform computations using any data in its memory during
+    // prediction. It is important not to exceed the computation cost threshold
+    // while making predictions and updating RoboMemory. The computation cost of
+    // prediction and updating RoboMemory is calculated by the playground
+    // automatically and printed together with accuracy at the end of the
+    // evaluation (see main.cpp for more details).
 
-  // Simple prediction policy: follow the spaceship computer's suggestions
+    // Simple prediction policy: follow the spaceship computer's suggestions
+    Branch branch = std::make_pair(roboMemory_ptr->previousPlanetId, nextPlanetID); 
+    
+    BranchHistoryTable &branchHistoryTable = roboMemory_ptr->branchHistoryTable;
+    PatternHistoryTable &patternHistoryTable = roboMemory_ptr->patternHistoryTable;
 
-  std::map<std::pair<std::uint64_t, std::uint64_t>, std::deque<bool>>& records = roboMemory_ptr->records;
-
-  std::pair<std::uint64_t, std::uint64_t> pair = std::make_pair(roboMemory_ptr->currentPlanetID, nextPlanetID);
-
-  if (records.find(pair) == records.end() || records[pair].size() != 10) {
-    return spaceshipComputerPrediction;
-  }
-  else {
-    std::uint64_t count = 0;
-    for (bool b : records[pair]) {
-      if (b) {
-        count++;
-      }
-    }
-    if (count >= 8){
-      return roboMemory_ptr->currentPlanetTime;
-    }
-    else {
-      return spaceshipComputerPrediction;
+    if (branchHistoryTable.find(branch) == branchHistoryTable.end() || patternHistoryTable.find(std::make_pair(branch, branchHistoryTable[branch])) == patternHistoryTable.end()) {
+        // if branch history entry or pattern history entry not found, just follow spaceship computer's prediction
+        // this can happen when it occurs less than HISTORY_LENGTH times 
+        return spaceshipComputerPrediction; 
     } 
-  }
-
+    else{ 
+        std::pair<Branch, std::bitset<HISTORY_LENGTH>> keyToPHT = std::make_pair(branch, branchHistoryTable[branch]); 
+        
+        // use MSB of counter as prediction
+        std::bitset<COUNTER_LENGTH> &counter = patternHistoryTable[keyToPHT]; 
+        std::bitset<COUNTER_LENGTH> counterMSBMask;
+        counterMSBMask.set(counter.size() - 1);
+        return (counter & counterMSBMask).to_ulong() > 0; 
+    }
 }
 
 void RoboPredictor::observeAndRecordTimeofdayOnNextPlanet(
     std::uint64_t nextPlanetID, bool timeOfDayOnNextPlanet) {
-  // Robo can consult/update data structures in its memory
-  // Example: access Robo's memory with roboMemory_ptr-><your RoboMemory
-  // content>
+    // Robo can consult/update data structures in its memory
+    // Example: access Robo's memory with roboMemory_ptr-><your RoboMemory
+    // content>
 
-  // It is important not to exceed the computation cost threshold while making
-  // predictions and updating RoboMemory. The computation cost of prediction and
-  // updating RoboMemory is calculated by the playground automatically and
-  // printed together with accuracy at the end of the evaluation (see main.cpp
-  // for more details).
+    // It is important not to exceed the computation cost threshold while making
+    // predictions and updating RoboMemory. The computation cost of prediction and
+    // updating RoboMemory is calculated by the playground automatically and
+    // printed together with accuracy at the end of the evaluation (see main.cpp
+    // for more details).
 
-  // Simple prediction policy: do nothing
+    // Simple prediction policy: do nothing
+    Branch branch = std::make_pair(roboMemory_ptr->previousPlanetId, nextPlanetID); 
+    
+    BranchHistoryTable &branchHistoryTable = roboMemory_ptr->branchHistoryTable;
+    PatternHistoryTable &patternHistoryTable = roboMemory_ptr->patternHistoryTable;
+    // std::map<Branch, std::uint64_t> &branchOccurrenceCounter = roboMemory_ptr->branchOccurrenceCounter; 
+    
+    if (branchHistoryTable.find(branch) == branchHistoryTable.end()) { 
+        // just create the branchHistory entry, don't create counter until branchHistory is full
+        branchHistoryTable[branch] = std::bitset<HISTORY_LENGTH>(); 
+        // roboMemory_ptr->branchOccurrenceCounter.insert(std::make_pair(branch, 0));
 
-  roboMemory_ptr->lastPlanetID = roboMemory_ptr->currentPlanetID;
-  roboMemory_ptr->lastPlanetTime = roboMemory_ptr->currentPlanetTime;
+        std::pair<Branch, std::bitset<HISTORY_LENGTH>> keyToPHT = std::make_pair(branch, branchHistoryTable[branch]);
+        patternHistoryTable[keyToPHT] = std::bitset<COUNTER_LENGTH>();
+    } 
+    // else if (branchOccurrenceCounter[branch] >= HISTORY_LENGTH){
+    else{
+        // only update branch pattern history when enough history is collected for the branch history entry
+        std::pair<Branch, std::bitset<HISTORY_LENGTH>> keyToPHT = std::make_pair(branch, branchHistoryTable[branch]);
+        std::bitset<COUNTER_LENGTH> &counter = patternHistoryTable[keyToPHT]; 
+        if (counter.any() && !timeOfDayOnNextPlanet){ 
+            // if counter > 0 and branch not taken 
+            counter = counter.to_ulong() - 1; 
+            // decrementCounter(counter);
+        } 
+        else if (!counter.all() && timeOfDayOnNextPlanet){ 
+            // if counter < max and branch taken 
+            counter = counter.to_ulong() + 1; 
+            // incrementCounter(counter);
+        }
+    }
 
-  roboMemory_ptr->currentPlanetID = nextPlanetID;
-  roboMemory_ptr->currentPlanetTime = timeOfDayOnNextPlanet;
+    std::bitset<HISTORY_LENGTH> newHistoryPattern = branchHistoryTable[branch] << 1;
+    if (timeOfDayOnNextPlanet){
+        newHistoryPattern.set(0);
+    } 
+    branchHistoryTable[branch] = newHistoryPattern;
+    // roboMemory_ptr->branchOccurrenceCounter[branch] += 1;
 
-  std::map<std::pair<std::uint64_t, std::uint64_t>, std::deque<bool>>& records = roboMemory_ptr->records;
+    // if (roboMemory_ptr->branchOccurrenceCounter[branch] == HISTORY_LENGTH){
+    //     std::pair<Branch, std::bitset<HISTORY_LENGTH>> keyToPHT = std::make_pair(branch, branchHistoryTable[branch]);
+    //     patternHistoryTable[keyToPHT] = std::bitset<COUNTER_LENGTH>();
+    // }
 
-  std::pair<std::uint64_t, std::uint64_t> pair = std::make_pair(roboMemory_ptr->lastPlanetID, roboMemory_ptr->currentPlanetID);
-  
-  if (records.find(pair) == records.end()) {
-    records[pair] = std::deque<bool>();
-  }
-  if (records[pair].size() == 10) {
-    records[pair].pop_front();
-  }
-  records[pair].push_back(roboMemory_ptr->currentPlanetTime == roboMemory_ptr->lastPlanetTime);
+    roboMemory_ptr->previousPlanetId = nextPlanetID; 
 }
 
 
