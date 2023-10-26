@@ -8,7 +8,10 @@
 #include <queue>
 
 struct RoboPredictor::RoboMemory {
+  uint64_t LastPlanet11 = 0;
   uint64_t LastPlanet8 = 0;
+  uint32_t LastPlanet10 = 0;
+  uint32_t LastPlanet9 = 0;
   uint32_t LastPlanet7 = 0;
   uint32_t LastPlanet6 = 0;
   uint64_t LastPlanet5 = 0;
@@ -17,7 +20,7 @@ struct RoboPredictor::RoboMemory {
   uint32_t LastPlanet3 = 0;
   uint32_t LastPlanet4 = 0;
   uint32_t CurrentPlanet = 0;
-  std::map<std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t>, std::uint32_t>, std::int16_t> total_records;
+  std::map<std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>>, std::uint32_t>, std::int16_t> total_records;
 
 };
 
@@ -38,14 +41,16 @@ bool RoboPredictor::predictTimeOfDayOnNextPlanet(
 
   // Simple prediction policy: follow the spaceship computer's suggestions
 
-  std::map<std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t>, std::uint32_t>, std::int16_t>& total_records = roboMemory_ptr->total_records;
+  std::map<std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>>, std::uint32_t>, std::int16_t>& total_records = roboMemory_ptr->total_records;
 
   std::pair<std::uint64_t,std::uint64_t> lastPlanetPattern1 = std::make_pair((roboMemory_ptr->LastPlanet5<< 42) | (roboMemory_ptr->LastPlanet4 << 21) |
                                     (roboMemory_ptr->LastPlanet3), (roboMemory_ptr->LastPlanet2<< 42) | (roboMemory_ptr->LastPlanet1 << 21) |
                                     (roboMemory_ptr->CurrentPlanet));
-  std::uint64_t lastPlanetPattern2 = (roboMemory_ptr->LastPlanet8<< 42) | (roboMemory_ptr->LastPlanet7 << 21) |(roboMemory_ptr->LastPlanet6);
-  std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t> lastPlanetPattern = std::make_pair(lastPlanetPattern1, lastPlanetPattern2);
-  std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t>, std::uint32_t> pair = std::make_pair(lastPlanetPattern, nextPlanetID);
+  std::pair<std::uint64_t,std::uint64_t> lastPlanetPattern2 = std::make_pair((roboMemory_ptr->LastPlanet11<< 42) | (roboMemory_ptr->LastPlanet10 << 21) |
+                                    (roboMemory_ptr->LastPlanet9), (roboMemory_ptr->LastPlanet8<< 42) | (roboMemory_ptr->LastPlanet7 << 21) |
+                                    (roboMemory_ptr->LastPlanet6));
+  std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>> lastPlanetPattern = std::make_pair(lastPlanetPattern1, lastPlanetPattern2);
+  std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>>, std::uint32_t> pair = std::make_pair(lastPlanetPattern, nextPlanetID);
 
    if (total_records.find(pair) == total_records.end()) {
     return spaceshipComputerPrediction;
@@ -74,15 +79,21 @@ void RoboPredictor::observeAndRecordTimeofdayOnNextPlanet(
   // for more details).
 
 
-  std::map<std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t>, std::uint32_t>, std::int16_t>& total_records = roboMemory_ptr->total_records;
+  std::map<std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>>, std::uint32_t>, std::int16_t>& total_records = roboMemory_ptr->total_records;
 
   std::pair<std::uint64_t,std::uint64_t> lastPlanetPattern1 = std::make_pair((roboMemory_ptr->LastPlanet5<< 42) | (roboMemory_ptr->LastPlanet4 << 21) |
                                     (roboMemory_ptr->LastPlanet3), (roboMemory_ptr->LastPlanet2<< 42) | (roboMemory_ptr->LastPlanet1 << 21) |
                                     (roboMemory_ptr->CurrentPlanet));
-  std::uint64_t lastPlanetPattern2 = (roboMemory_ptr->LastPlanet8<< 42) | (roboMemory_ptr->LastPlanet7 << 21) |(roboMemory_ptr->LastPlanet6);
-  std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t> lastPlanetPattern = std::make_pair(lastPlanetPattern1, lastPlanetPattern2);
-  std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::uint64_t>, std::uint32_t> pair = std::make_pair(lastPlanetPattern, nextPlanetID);
+  std::pair<std::uint64_t,std::uint64_t> lastPlanetPattern2 = std::make_pair((roboMemory_ptr->LastPlanet11<< 42) | (roboMemory_ptr->LastPlanet10 << 21) |
+                                    (roboMemory_ptr->LastPlanet9), (roboMemory_ptr->LastPlanet8<< 42) | (roboMemory_ptr->LastPlanet7 << 21) |
+                                    (roboMemory_ptr->LastPlanet6));
 
+  std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>> lastPlanetPattern = std::make_pair(lastPlanetPattern1, lastPlanetPattern2);
+  std::pair<std::pair<std::pair<std::uint64_t,std::uint64_t>, std::pair<std::uint64_t,std::uint64_t>>, std::uint32_t> pair = std::make_pair(lastPlanetPattern, nextPlanetID);
+  
+  roboMemory_ptr->LastPlanet11 = roboMemory_ptr->LastPlanet10;
+  roboMemory_ptr->LastPlanet10 = roboMemory_ptr->LastPlanet9;
+  roboMemory_ptr->LastPlanet9 = roboMemory_ptr->LastPlanet8;
   roboMemory_ptr->LastPlanet8 = roboMemory_ptr->LastPlanet7;
   roboMemory_ptr->LastPlanet7 = roboMemory_ptr->LastPlanet6;
   roboMemory_ptr->LastPlanet6 = roboMemory_ptr->LastPlanet5;
